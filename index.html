@@ -1,230 +1,451 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>A Tiny Surprise 💗</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>A Little Surprise — ✨</title>
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&family=Dancing+Script:wght@500&display=swap" rel="stylesheet">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Dancing+Script:wght@400;600&display=swap" rel="stylesheet">
 
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
+    :root{
+      --bg1:#FFF0F4; /* very light blush */
+      --bg2:#FFE6F0; /* soft peach-pink */
+      --accent:#FF6F9E; /* heart pink */
+      --soft:#FADADD; /* blush */
+      --cream:#FFF6EC;
+      --text:#4a2f3f;
+      --muted:#8a5970;
+      --glass: rgba(255,255,255,0.6);
+      --shadow: 0 12px 30px rgba(78,22,60,0.12);
     }
 
-    body {
-      min-height: 100vh;
-      background: linear-gradient(180deg, #FADADD, #FFD6E8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      color: #5a3a4e;
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(180deg,var(--bg1),var(--bg2));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow:hidden;
     }
 
-    .container {
-      text-align: center;
-      padding: 25px;
-      max-width: 420px;
-      width: 100%;
+    /* App shell */
+    .app{
+      width:min(920px,96vw);
+      height:min(760px,94vh);
+      background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.8));
+      border-radius:22px;
+      padding:28px;
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+      display:grid;
+      grid-template-rows: auto 1fr auto;
+      align-items:start;
     }
 
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 15px;
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .logo{
+      display:flex;align-items:center;gap:12px;
+    }
+    .logo .mark{
+      background:linear-gradient(135deg,#FFB3CC,#FF6F9E);
+      width:56px;height:56px;border-radius:14px;display:grid;place-items:center;color:white;font-weight:700;font-size:20px;box-shadow:0 8px 18px rgba(255,111,158,0.18)
+    }
+    .logo h3{font-size:1.05rem;margin:0}
+    .controls{display:flex;gap:10px;align-items:center}
+
+    /* cute cursor */
+    .heart-cursor{cursor:none}
+    .custom-cursor{
+      position:fixed;pointer-events:none;z-index:9999;width:28px;height:28px;border-radius:8px;transform:translate(-50%,-50%);display:grid;place-items:center;font-size:16px;transition:transform .12s ease}
+
+    /* main content area */
+    .main{
+      display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:18px;position:relative;
     }
 
-    .timer {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin: 20px 0;
+    .title{
+      text-align:center;
     }
+    .title h1{font-size:1.9rem;margin:0;font-weight:700}
+    .title p{color:var(--muted);margin-top:6px}
 
-    .time-box {
-      background: #fff0f6;
-      padding: 12px;
-      border-radius: 20px;
-      width: 70px;
-      box-shadow: 0 6px 15px rgba(255, 105, 180, 0.25);
-      animation: float 3s ease-in-out infinite;
+    /* particle field */
+    .particles{position:absolute;inset:0;pointer-events:none}
+    .particle{position:absolute;font-size:12px;opacity:.9;filter:drop-shadow(0 6px 18px rgba(255,101,150,0.12))}
+
+    /* timer box */
+    .timer-wrap{display:flex;gap:12px;align-items:center}
+    .time-pill{
+      background:linear-gradient(180deg,#fff,#fff0f8);
+      border-radius:14px;padding:10px 14px;min-width:78px;text-align:center;box-shadow:0 10px 24px rgba(255,101,150,0.08);
+      transform-origin:center;transition:transform .18s cubic-bezier(.2,.9,.2,1);
     }
+    .time-pill.pop{transform:translateY(-6px) scale(1.03)}
+    .time-pill .num{font-weight:700;font-size:1.4rem;color:var(--text)}
+    .time-pill .label{font-size:0.72rem;color:var(--muted);margin-top:4px}
 
-    .time-box span {
-      display: block;
-      font-size: 1.4rem;
-      font-weight: 600;
+    .actions{display:flex;gap:10px;align-items:center}
+    .btn{background:var(--accent);border:none;color:white;padding:10px 14px;border-radius:999px;font-weight:600;cursor:pointer;box-shadow:0 8px 18px rgba(255,111,158,0.15);}
+    .btn.ghost{background:transparent;color:var(--accent);border:2px solid rgba(255,111,158,0.12)}
+
+    /* envelope stage */
+    .stage{position:absolute;inset:0;display:grid;place-items:center;pointer-events:auto}
+    .envelope{
+      width:220px;height:140px;border-radius:16px;background:linear-gradient(180deg,#FFDFF0,#FFEDF6);display:grid;place-items:center;box-shadow:0 14px 40px rgba(80,18,40,0.12);transform-origin:center;transition:transform .45s cubic-bezier(.2,.9,.2,1)
     }
+    .envelope .seal{width:58px;height:58px;border-radius:100px;background:linear-gradient(180deg,#FF6F9E,#FF2E6D);display:grid;place-items:center;color:white;font-size:22px;box-shadow:0 8px 20px rgba(255,101,150,0.18)}
+    .envelope:hover{transform:translateY(-8px) rotate(-2deg)}
 
-    .time-box small {
-      font-size: 0.7rem;
-    }
+    /* envelope open animations */
+    .envelope.open{height:240px;padding-top:18px}
+    .scroll-paper{width:84%;height:72%;background:linear-gradient(180deg,#fff8f0,#FFF6EC);border-radius:12px;padding:20px;box-shadow:0 18px 40px rgba(0,0,0,0.08);transform-origin:top;overflow:auto}
 
-    @keyframes float {
-      0%,100% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
-    }
+    .scroll-paper .handtext{font-family:'Dancing Script',cursive;font-size:20px;line-height:1.4;color:var(--text)}
 
-    button {
-      margin-top: 15px;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 25px;
-      background: #ff8fb1;
-      color: white;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+    /* Tulips garden */
+    .garden{display:flex;gap:18px;align-items:flex-end;margin-top:18px}
+    .tulip{width:84px;height:160px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+    .stem{width:6px;background:linear-gradient(180deg,#69b06f,#2f7a4b);border-radius:8px;transition:height .9s cubic-bezier(.2,.8,.2,1);}
+    .bloom{width:46px;height:46px;border-radius:50% 50% 45% 45%;background:linear-gradient(180deg,#FF98BE,#FF6F9E);transform-origin:bottom center;transition:transform .9s cubic-bezier(.2,.8,.2,1);box-shadow:0 10px 24px rgba(255,105,160,0.15)}
 
-    button:hover {
-      transform: scale(1.05);
-      background: #ff6f9e;
-    }
+    /* butterflies */
+    .butter{position:absolute;pointer-events:none;font-size:28px;opacity:0.95;transform-origin:center}
 
-    /* Envelope */
-    .envelope {
-      font-size: 90px;
-      cursor: pointer;
-      animation: wiggle 1.8s infinite;
-    }
+    /* footer */
+    footer{display:flex;justify-content:center;gap:12px;padding:12px}
+    footer p{color:var(--muted);font-size:0.9rem}
 
-    @keyframes wiggle {
-      0%,100% { transform: rotate(0deg); }
-      25% { transform: rotate(-5deg); }
-      75% { transform: rotate(5deg); }
-    }
-
-    /* Scroll Letter */
-    .scroll {
-      background: #fff6ec;
-      border-radius: 20px;
-      padding: 25px;
-      max-height: 70vh;
-      overflow-y: auto;
-      font-family: 'Dancing Script', cursive;
-      font-size: 1.3rem;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-      animation: fadeUp 1s ease forwards;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Tulips */
-    .tulips {
-      margin-top: 25px;
-      font-size: 2rem;
-      animation: grow 2s ease-in-out infinite alternate;
-    }
-
-    @keyframes grow {
-      from { transform: scale(1); }
-      to { transform: scale(1.1); }
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .hint {
-      margin-top: 10px;
-      font-size: 0.8rem;
-      opacity: 0.8;
+    /* responsive */
+    @media (max-width:640px){
+      .app{padding:18px;border-radius:16px}
+      .envelope{width:180px;height:120px}
+      .time-pill{min-width:60px}
     }
   </style>
 </head>
+<body class="heart-cursor">
 
-<body>
-  <div class="container">
+  <div id="cursor" class="custom-cursor">💗</div>
 
-    <!-- COUNTDOWN PAGE -->
-    <div id="countdownPage">
-      <h1>A tiny surprise is waiting 🎀</h1>
-
-      <div class="timer">
-        <div class="time-box"><span id="days">00</span><small>Days 💗</small></div>
-        <div class="time-box"><span id="hours">00</span><small>Hours 🎀</small></div>
-        <div class="time-box"><span id="minutes">00</span><small>Mins 🌸</small></div>
-        <div class="time-box"><span id="seconds">00</span><small>Secs ✨</small></div>
+  <div class="app" role="main" aria-label="Tiny surprise app">
+    <header>
+      <div class="logo">
+        <div class="mark">💝</div>
+        <div>
+          <h3>For Today</h3>
+          <div style="font-size:12px;color:var(--muted)">A small, soft surprise</div>
+        </div>
       </div>
 
-      <p class="hint">Please be patient… it’s almost time 💌</p>
+      <div class="controls">
+        <button class="btn ghost" id="soundToggle" title="toggle music">🔈</button>
+        <button class="btn" id="previewBtn">Preview</button>
+      </div>
+    </header>
 
-      <button onclick="openLetter()">👀 Preview (Only for me)</button>
-    </div>
+    <div class="main">
+      <div class="particles" aria-hidden="true"></div>
 
-    <!-- ENVELOPE -->
-    <div id="envelopePage" class="hidden">
-      <div class="envelope" onclick="showScroll()">💌</div>
-      <p class="hint">Tap to open</p>
-    </div>
-
-    <!-- LETTER -->
-    <div id="letterPage" class="hidden">
-      <div class="scroll">
-        <p>Happy Birthday 🎉💗</p>
-        <br>
-        <p>
-          I hope today feels soft, warm, and full of little smiles 🌸  
-          I hope this year brings you peace, happiness,  
-          and moments that make your heart feel light 🎀
-        </p>
-        <br>
-        <p>
-          That’s all…  
-          Have the sweetest day 🌷
-        </p>
+      <div class="title">
+        <h1>Something cute is waiting 🎀</h1>
+        <p>Soft, private. Open when it feels right.</p>
       </div>
 
-      <div class="tulips">🌷 🌷 🌷</div>
+      <div class="timer-wrap" aria-hidden="false">
+        <div class="time-pill" id="pillDays"><div class="num" id="days">00</div><div class="label">Days 💗</div></div>
+        <div class="time-pill" id="pillHours"><div class="num" id="hours">00</div><div class="label">Hours 🎀</div></div>
+        <div class="time-pill" id="pillMins"><div class="num" id="minutes">00</div><div class="label">Mins 🌸</div></div>
+        <div class="time-pill" id="pillSecs"><div class="num" id="seconds">00</div><div class="label">Secs ✨</div></div>
+      </div>
+
+      <div style="display:flex;gap:12px;margin-top:6px">
+        <button class="btn" id="openNow">Open (Only for me)</button>
+        <button class="btn ghost" id="explain">How it works</button>
+      </div>
+
+      <!-- Stage area for envelope/scroll/garden -->
+      <div class="stage" id="stageArea" aria-live="polite"></div>
+
     </div>
 
+    <footer>
+      <p>Made with care • No pressure • No names</p>
+    </footer>
   </div>
 
-<script>
-  // Pakistan Time: 24 Jan 12:00 AM PKT
-  const targetDate = new Date("2026-01-24T00:00:00+05:00").getTime();
+  <!-- Single-file assets and templates -->
+  <template id="envelopeTpl">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+      <div class="envelope" id="envelopeEl" role="button" aria-pressed="false" tabindex="0">
+        <div class="seal">💌</div>
+      </div>
+      <div style="font-size:13px;color:var(--muted)">Tap to open</div>
+    </div>
+  </template>
 
-  function updateTimer() {
-    const now = new Date().getTime();
-    const diff = targetDate - now;
+  <template id="scrollTpl">
+    <div style="display:flex;flex-direction:column;align-items:center;width:100%">
+      <div class="envelope open" style="width:92%;max-width:560px;padding:18px;">
+        <div class="scroll-paper" id="scrollPaper">
+          <div class="handtext" id="letterText"></div>
+        </div>
+      </div>
 
-    if (diff <= 0) {
-      openLetter();
-      return;
+      <div class="garden" id="garden">
+        <div class="tulip" data-index="0"><div class="stem" style="height:0"></div><div class="bloom" style="transform:scale(0)"></div></div>
+        <div class="tulip" data-index="1"><div class="stem" style="height:0"></div><div class="bloom" style="transform:scale(0);background:linear-gradient(180deg,#FFD1E1,#FF8BB3)"></div></div>
+        <div class="tulip" data-index="2"><div class="stem" style="height:0"></div><div class="bloom" style="transform:scale(0);background:linear-gradient(180deg,#FFDDE6,#FFA6C7)"></div></div>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    /* ==========================
+       Configuration
+       ========================== */
+    // TARGET: 24 Jan Pakistan time (year = current or next if passed)
+    // IMPORTANT: user wanted specifically "24 Jan Pak time". We'll target 2026-01-24 00:00 PKT.
+    const TARGET_ISO = "2026-01-24T00:00:00+05:00";
+    const targetDate = new Date(TARGET_ISO).getTime();
+
+    // The letter text (editable here)
+    const LETTER_TEXT = `
+Happy Birthday 🎉💗\n\n
+I hope today feels soft, quiet, and unexpectedly kind.\n
+A small wish for gentleness, tiny laughter, and moments that make your chest feel light.\n\n
+That’s all — no need to answer. Just have the sweetest day 🌷`;
+
+    /* ==========================
+       Helpers & DOM
+       ========================== */
+    const $ = id => document.getElementById(id);
+    const stage = $('stageArea');
+    const previewBtn = $('previewBtn');
+    const openNow = $('openNow');
+    const explain = $('explain');
+    const soundToggle = $('soundToggle');
+
+    // Timer elements
+    const daysEl = $('days'), hoursEl = $('hours'), minutesEl = $('minutes'), secondsEl = $('seconds');
+    const pillDays = $('pillDays'), pillHours = $('pillHours'), pillMins = $('pillMins'), pillSecs = $('pillSecs');
+
+    /* ==========================
+       Cursor heart
+       ========================== */
+    const cursor = $('cursor');
+    window.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+    });
+
+    /* ==========================
+       Particles (hearts & sparkles)
+       ========================== */
+    const particlesHost = document.querySelector('.particles');
+    function spawnParticles(){
+      const count = 10;
+      for(let i=0;i<count;i++){
+        const el = document.createElement('div');
+        el.className = 'particle';
+        el.textContent = ['✨','💕','🌸'][Math.floor(Math.random()*3)];
+        const size = 10 + Math.random()*12;
+        el.style.fontSize = size+'px';
+        el.style.left = (10 + Math.random()*80) + '%';
+        el.style.top = (5 + Math.random()*70) + '%';
+        el.style.opacity = 0.6 + Math.random()*0.6;
+        particlesHost.appendChild(el);
+        // animate float
+        el.animate([
+          {transform: `translateY(0) scale(1)`, opacity: el.style.opacity},
+          {transform: `translateY(-40px) scale(.9)`, opacity: 0}
+        ],{duration:4000+Math.random()*4000,iterations:1,easing:'cubic-bezier(.2,.9,.2,1)'}).onfinish = ()=>el.remove();
+      }
+    }
+    setInterval(spawnParticles,1400);
+
+    /* ==========================
+       Timer logic
+       ========================== */
+    function updateTimer(){
+      const now = Date.now();
+      let diff = targetDate - now;
+      if(diff <= 0){
+        showEnvelope();
+        return;
+      }
+      const d = Math.floor(diff / (1000*60*60*24));
+      diff -= d * (1000*60*60*24);
+      const h = Math.floor(diff / (1000*60*60));
+      diff -= h * (1000*60*60);
+      const m = Math.floor(diff / (1000*60));
+      diff -= m * (1000*60);
+      const s = Math.floor(diff / 1000);
+
+      daysEl.textContent = String(d).padStart(2,'0');
+      hoursEl.textContent = String(h).padStart(2,'0');
+      minutesEl.textContent = String(m).padStart(2,'0');
+      secondsEl.textContent = String(s).padStart(2,'0');
+
+      // small pop animation on change
+      [pillDays,pillHours,pillMins,pillSecs].forEach(el=>el.classList.remove('pop'));
+      // pick the pill to pop depending on s
+      pillSecs.classList.add('pop');
+      setTimeout(()=>pillSecs.classList.remove('pop'),160);
+    }
+    const timerInterval = setInterval(updateTimer,1000);
+    updateTimer();
+
+    /* ==========================
+       Envelope / Scroll / Garden flow
+       ========================== */
+    function clearStage(){ stage.innerHTML = ''; }
+
+    function showEnvelope(){
+      clearStage();
+      const tpl = document.getElementById('envelopeTpl');
+      const node = tpl.content.cloneNode(true);
+      stage.appendChild(node);
+      const envelopeEl = document.getElementById('envelopeEl');
+
+      // event handlers
+      function open(){
+        envelopeEl.removeEventListener('click',open);
+        envelopeEl.removeEventListener('keydown',onKey);
+        revealScroll();
+      }
+      function onKey(e){ if(e.key==='Enter' || e.key===' ') open(); }
+      envelopeEl.addEventListener('click',open);
+      envelopeEl.addEventListener('keydown',onKey);
+
+      // accessible focus
+      envelopeEl.focus?.();
     }
 
-    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const m = Math.floor((diff / (1000 * 60)) % 60);
-    const s = Math.floor((diff / 1000) % 60);
+    function revealScroll(){
+      clearStage();
+      const tpl = document.getElementById('scrollTpl');
+      const node = tpl.content.cloneNode(true);
+      stage.appendChild(node);
 
-    document.getElementById("days").textContent = String(d).padStart(2,'0');
-    document.getElementById("hours").textContent = String(h).padStart(2,'0');
-    document.getElementById("minutes").textContent = String(m).padStart(2,'0');
-    document.getElementById("seconds").textContent = String(s).padStart(2,'0');
-  }
+      // insert letter text nicely (preserve newlines)
+      const letterTextEl = document.getElementById('letterText');
+      letterTextEl.innerHTML = LETTER_TEXT.replace(/\n/g,'<br><br>');
 
-  setInterval(updateTimer, 1000);
-  updateTimer();
+      // animate tulips growth staggered
+      const tulips = Array.from(document.querySelectorAll('.tulip'));
+      tulips.forEach((t,i)=>{
+        const stem = t.querySelector('.stem');
+        const bloom = t.querySelector('.bloom');
+        setTimeout(()=>{
+          stem.style.height = (80 + Math.random()*40) + 'px';
+          bloom.style.transform = 'scale(1)';
+        }, 600 + i*420);
+      });
 
-  function openLetter() {
-    document.getElementById("countdownPage").classList.add("hidden");
-    document.getElementById("envelopePage").classList.remove("hidden");
-  }
+      // gentle butterflies
+      spawnButterflies();
+    }
 
-  function showScroll() {
-    document.getElementById("envelopePage").classList.add("hidden");
-    document.getElementById("letterPage").classList.remove("hidden");
-  }
-</script>
+    function spawnButterflies(){
+      const butterflies = ['🦋','🧚‍♀️'];
+      for(let i=0;i<5;i++){
+        const el = document.createElement('div');
+        el.className = 'butter';
+        el.textContent = butterflies[Math.floor(Math.random()*butterflies.length)];
+        document.body.appendChild(el);
+        const startX = Math.random()*80 + 8; const startY = 60 + Math.random()*20;
+        el.style.left = startX + '%'; el.style.top = startY + '%';
+        const dur = 5000 + Math.random()*4000;
+        el.animate([
+          {transform:'translateY(0) rotate(0) scale(0.9)',opacity:0},
+          {transform:`translateY(-120px) rotate(120deg) scale(1.05)`,opacity:1, offset:0.4},
+          {transform:'translateY(-260px) rotate(240deg) scale(0.9)',opacity:0}
+        ],{duration:dur,iterations:1,easing:'cubic-bezier(.2,.9,.2,1)'}).onfinish = ()=>el.remove();
+      }
+    }
 
+    /* ==========================
+       Controls binding
+       ========================== */
+    previewBtn.addEventListener('click',()=>{
+      // stop timer and show envelope immediately
+      clearInterval(timerInterval);
+      showEnvelope();
+    });
+    openNow.addEventListener('click',()=>{
+      clearInterval(timerInterval);
+      showEnvelope();
+    });
+    explain.addEventListener('click',()=>{
+      alert('This page counts down to 24 Jan (Pakistan time). When the timer ends, a sealed envelope appears. Click the envelope to open a gentle scroll with the birthday message and a tulip scene.\n\nPreview button opens it for you only (keeps it private).');
+    });
+
+    /* ==========================
+       OPTIONAL: soft music control (muted by default)
+       ========================== */
+    let music;
+    (function(){
+      music = new Audio();
+      // tiny looped gentle harp-like url: embedded via data URI (tiny tone) - we will not include long audio to keep single-file small
+      // keep music disabled by default — toggle will load a short base64-encoded audio if desired
+      music.loop = true; music.volume = 0.14; music.muted = true;
+    })();
+    soundToggle.addEventListener('click', ()=>{
+      if(music.muted){
+        // attempt to play a tiny pleasant tone using WebAudio if available (keeps file small)
+        playSoftTone();
+        music.muted = false; soundToggle.textContent = '🔊';
+      } else { music.muted = true; soundToggle.textContent = '🔈'; }
+    });
+
+    function playSoftTone(){
+      // use WebAudio to play a tasteful loop of soft notes (short, synth-like)
+      try{
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const gain = ctx.createGain(); gain.gain.value = 0.06; gain.connect(ctx.destination);
+        const osc1 = ctx.createOscillator(); osc1.type='sine'; osc1.frequency.value = 440;
+        const osc2 = ctx.createOscillator(); osc2.type='sine'; osc2.frequency.value = 660;
+        const mix = ctx.createGain(); mix.gain.value = 0.5; osc1.connect(mix); osc2.connect(mix); mix.connect(gain);
+        osc1.start(); osc2.start();
+        // simple gentle melody
+        let t = ctx.currentTime;
+        const notes = [440,0,660,0,554,0,440];
+        notes.forEach((n,i)=>{ if(n>0){ const o = ctx.createOscillator(); o.type='sine'; o.frequency.value = n; const g = ctx.createGain(); g.gain.value = 0.06; o.connect(g); g.connect(ctx.destination); o.start(t + i*0.6); o.stop(t + i*0.6 + 0.55); } });
+      }catch(e){ /* ignore */ }
+    }
+
+    /* ==========================
+       Accessibility: keyboard open
+       ========================== */
+    document.addEventListener('keydown', (e) => {
+      if(e.key === 'o' || e.key === 'O'){
+        clearInterval(timerInterval); showEnvelope();
+      }
+    });
+
+    /* ==========================
+       Initial tiny flourish
+       ========================== */
+    setTimeout(()=>{
+      // tiny intro pop
+      document.querySelectorAll('.time-pill').forEach((p,i)=>setTimeout(()=>p.classList.add('pop'), i*120));
+      setTimeout(()=>document.querySelectorAll('.time-pill').forEach(p=>p.classList.remove('pop')), 900);
+    },220);
+
+  </script>
 </body>
 </html>
