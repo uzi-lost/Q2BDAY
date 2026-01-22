@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>A Tiny Surprise 💗</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&family=Dancing+Script:wght@500&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(180deg, #FADADD, #FFD6E8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      color: #5a3a4e;
+    }
+
+    .container {
+      text-align: center;
+      padding: 25px;
+      max-width: 420px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+    }
+
+    .timer {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .time-box {
+      background: #fff0f6;
+      padding: 12px;
+      border-radius: 20px;
+      width: 70px;
+      box-shadow: 0 6px 15px rgba(255, 105, 180, 0.25);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .time-box span {
+      display: block;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+
+    .time-box small {
+      font-size: 0.7rem;
+    }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 25px;
+      background: #ff8fb1;
+      color: white;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      background: #ff6f9e;
+    }
+
+    /* Envelope */
+    .envelope {
+      font-size: 90px;
+      cursor: pointer;
+      animation: wiggle 1.8s infinite;
+    }
+
+    @keyframes wiggle {
+      0%,100% { transform: rotate(0deg); }
+      25% { transform: rotate(-5deg); }
+      75% { transform: rotate(5deg); }
+    }
+
+    /* Scroll Letter */
+    .scroll {
+      background: #fff6ec;
+      border-radius: 20px;
+      padding: 25px;
+      max-height: 70vh;
+      overflow-y: auto;
+      font-family: 'Dancing Script', cursive;
+      font-size: 1.3rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      animation: fadeUp 1s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Tulips */
+    .tulips {
+      margin-top: 25px;
+      font-size: 2rem;
+      animation: grow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes grow {
+      from { transform: scale(1); }
+      to { transform: scale(1.1); }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .hint {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- COUNTDOWN PAGE -->
+    <div id="countdownPage">
+      <h1>A tiny surprise is waiting 🎀</h1>
+
+      <div class="timer">
+        <div class="time-box"><span id="days">00</span><small>Days 💗</small></div>
+        <div class="time-box"><span id="hours">00</span><small>Hours 🎀</small></div>
+        <div class="time-box"><span id="minutes">00</span><small>Mins 🌸</small></div>
+        <div class="time-box"><span id="seconds">00</span><small>Secs ✨</small></div>
+      </div>
+
+      <p class="hint">Please be patient… it’s almost time 💌</p>
+
+      <button onclick="openLetter()">👀 Preview (Only for me)</button>
+    </div>
+
+    <!-- ENVELOPE -->
+    <div id="envelopePage" class="hidden">
+      <div class="envelope" onclick="showScroll()">💌</div>
+      <p class="hint">Tap to open</p>
+    </div>
+
+    <!-- LETTER -->
+    <div id="letterPage" class="hidden">
+      <div class="scroll">
+        <p>Happy Birthday 🎉💗</p>
+        <br>
+        <p>
+          I hope today feels soft, warm, and full of little smiles 🌸  
+          I hope this year brings you peace, happiness,  
+          and moments that make your heart feel light 🎀
+        </p>
+        <br>
+        <p>
+          That’s all…  
+          Have the sweetest day 🌷
+        </p>
+      </div>
+
+      <div class="tulips">🌷 🌷 🌷</div>
+    </div>
+
+  </div>
+
+<script>
+  // Pakistan Time: 24 Jan 12:00 AM PKT
+  const targetDate = new Date("2026-01-24T00:00:00+05:00").getTime();
+
+  function updateTimer() {
+    const now = new Date().getTime();
+    const diff = targetDate - now;
+
+    if (diff <= 0) {
+      openLetter();
+      return;
+    }
+
+    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const m = Math.floor((diff / (1000 * 60)) % 60);
+    const s = Math.floor((diff / 1000) % 60);
+
+    document.getElementById("days").textContent = String(d).padStart(2,'0');
+    document.getElementById("hours").textContent = String(h).padStart(2,'0');
+    document.getElementById("minutes").textContent = String(m).padStart(2,'0');
+    document.getElementById("seconds").textContent = String(s).padStart(2,'0');
+  }
+
+  setInterval(updateTimer, 1000);
+  updateTimer();
+
+  function openLetter() {
+    document.getElementById("countdownPage").classList.add("hidden");
+    document.getElementById("envelopePage").classList.remove("hidden");
+  }
+
+  function showScroll() {
+    document.getElementById("envelopePage").classList.add("hidden");
+    document.getElementById("letterPage").classList.remove("hidden");
+  }
+</script>
+
+</body>
+</html>
