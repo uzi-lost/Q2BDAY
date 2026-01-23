@@ -219,15 +219,7 @@
           <div class="handtext" id="letterText"></div>
         </div>
       </div>
-<div class="garden" id="garden"></div>
-   
-
-
-    <!--  <div class="garden" id="garden">
-        <div class="tulip" data-index="0"><div class="stem" style="height:0"></div><div class="bloom" style="transform:scale(0)"></div></div>
-        <div class="tulip" data-index="1"><div class="stem" style="height:0"></div><div class="bloom" style="transform:scale(0);background:linear-gradient(180deg,#FFD1E1,#FF8BB3)"></div></div>
-        <div class="tulip" data-index="2"><div class="stem" style="height:0"></div><div class="bloom" style="transform:scale(0);background:linear-gradient(180deg,#FFDDE6,#FFA6C7)"></div></div>
-      </div> -->
+      <div class="garden" id="garden"></div>
     </div>
   </template>
 
@@ -242,9 +234,9 @@
 
     // The letter text (editable here)
     const LETTER_TEXT = `
-Happy Birthday 🎉💗\n\n
-AH.. Finally 18 ki ho gye 😭😭.. MA SHA ALLAH.. Abhi tou 16 ki thiiii.. Reading old lovely chats and it all feels like yesterday , Had shocks reading the dates .. Like everything still clear in mind , The scene , The feelings , The emotions , The fun , The prayers .. Everythng felt unreal at that time , The world felt complete even though it wasn't , Life had purpose , Things were planned and lot of happy moments imagined , I remember my 18th birthday , The way yuh wished .. The way yuh motivated .. The way .. The list goes on and can't be written easily .. Now you're 18 ..But Things are quite different .. Different ? Yeah it's wayy tooooooooo small word compared to the realiy, But yeah can't wish you the same way even though trying.. , But I DID tried the best to be always there and show you and prove to you all the time , Everything is now lost , crushed and broken but My best wishes and prayers will always be with you , I have never wished harm or bad for you and replaced it with some prayer in some hard times , Afterall still couldn't miss your special day.. For the end IDK What's really happening in life or what's gonna happen .. Everything ........ right now :) BUT ..
-ALLAH KHAIR KARAY... , Fe Iman Illah :) 🌷                                                                                    `;
+Happy Birthday 🎉💗
+
+texttt                                                                                  `;
 
     /* ==========================
        Helpers & DOM
@@ -352,93 +344,90 @@ ALLAH KHAIR KARAY... , Fe Iman Illah :) 🌷                                    
       envelopeEl.focus?.();
     }
 
-  function revealScroll(){
-  clearStage();
+    function revealScroll(){
+      clearStage();
 
-  const tpl = document.getElementById('scrollTpl');
-  const node = tpl.content.cloneNode(true);
-  stage.appendChild(node);
-
-  // 🌷 generate & animate garden
-  generateGarden('garden', 3);
-  setTimeout(animateTulips, 220);
-
-  // 🔊 start audio (mobile-safe: user gesture)
-  ensureSynthContext();
-  startSynthLoop();
-}
-
+      const tpl = document.getElementById('scrollTpl');
+      const node = tpl.content.cloneNode(true);
+      stage.appendChild(node);
 
       // insert letter text nicely (preserve newlines)
       const letterTextEl = document.getElementById('letterText');
-      letterTextEl.innerHTML = LETTER_TEXT.replace(/\n/g,'<br><br>');
+      if(letterTextEl) letterTextEl.innerHTML = LETTER_TEXT.replace(/\n/g,'<br><br>');
 
-      // animate tulips growth staggered
-     /* ---------- Tulip SVG generator + animation ---------- */
-function tulipSVG(i){
-  const colors = [
-    ['#FF98BE','#FF6F9E'],
-    ['#FFD1E1','#FF8BB3'],
-    ['#FFDDE6','#FFA6C7']
-  ];
-  const c = colors[i % colors.length];
-
-  return `
-    <svg class="tulip-svg" viewBox="0 0 120 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <defs>
-        <linearGradient id="tg${i}" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stop-color="${c[0]}"/>
-          <stop offset="1" stop-color="${c[1]}"/>
-        </linearGradient>
-      </defs>
-
-      <!-- stem -->
-      <path class="stem" d="M60 120 C 58 150, 56 190, 60 220" fill="none"/>
-
-      <!-- leaves -->
-      <path d="M60 150 C 36 146, 26 162, 44 176" fill="#2f7a4b" opacity="0.96"/>
-      <path d="M60 162 C 84 158, 94 174, 76 188" fill="#2f7a4b" opacity="0.96"/>
-
-      <!-- petals: left, center, right -->
-      <g class="petal left" transform="scale(0)">
-        <path d="M60 98 C 40 60, 6 64, 24 102 C 14 118, 30 132, 60 128" fill="url(#tg${i})"/>
-      </g>
-      <g class="petal center" transform="scale(0)">
-        <path d="M60 90 C 46 40, 74 40, 60 90 C 70 120, 50 120, 60 90 Z" fill="url(#tg${i})"/>
-      </g>
-      <g class="petal right" transform="scale(0)">
-        <path d="M60 98 C 80 60, 114 64, 96 102 C 106 118, 90 132, 60 128" fill="url(#tg${i})"/>
-      </g>
-    </svg>
-  `;
-}
-
-function generateGarden(containerId = 'garden', count = 3){
-  const host = document.getElementById(containerId);
-  if(!host) return;
-  host.innerHTML = '';
-  for(let i=0;i<count;i++){
-    host.insertAdjacentHTML('beforeend', tulipSVG(i));
-  }
-}
-
-function animateTulips(){
-  const stems = document.querySelectorAll('.tulip-svg .stem');
-  const petals = document.querySelectorAll('.tulip-svg .petal');
-  stems.forEach((s,i)=>{
-    setTimeout(()=> { s.style.strokeDashoffset = '0'; }, 360 + i*260);
-  });
-  petals.forEach((p,i)=>{
-    setTimeout(()=>{
-      if(p.classList.contains('left')) p.style.transform = 'scale(1) rotate(-6deg)';
-      else if(p.classList.contains('right')) p.style.transform = 'scale(1) rotate(6deg)';
-      else p.style.transform = 'scale(1) rotate(0deg)';
-    }, 760 + i*320);
-  });
-}
+      // 🌷 generate & animate garden
+      generateGarden('garden', 3);
+      setTimeout(animateTulips, 220);
 
       // gentle butterflies
       spawnButterflies();
+
+      // 🔊 start audio (mobile-safe: user gesture)
+      ensureSynthContext();
+      startSynthLoop();
+    }
+
+    /* ---------- Tulip SVG generator + animation ---------- */
+    function tulipSVG(i){
+      const colors = [
+        ['#FF98BE','#FF6F9E'],
+        ['#FFD1E1','#FF8BB3'],
+        ['#FFDDE6','#FFA6C7']
+      ];
+      const c = colors[i % colors.length];
+
+      return `
+        <svg class="tulip-svg" viewBox="0 0 120 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <defs>
+            <linearGradient id="tg${i}" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="${c[0]}"/>
+              <stop offset="1" stop-color="${c[1]}"/>
+            </linearGradient>
+          </defs>
+
+          <!-- stem -->
+          <path class="stem" d="M60 120 C 58 150, 56 190, 60 220" fill="none"/>
+
+          <!-- leaves -->
+          <path d="M60 150 C 36 146, 26 162, 44 176" fill="#2f7a4b" opacity="0.96"/>
+          <path d="M60 162 C 84 158, 94 174, 76 188" fill="#2f7a4b" opacity="0.96"/>
+
+          <!-- petals: left, center, right -->
+          <g class="petal left" transform="scale(0)">
+            <path d="M60 98 C 40 60, 6 64, 24 102 C 14 118, 30 132, 60 128" fill="url(#tg${i})"/>
+          </g>
+          <g class="petal center" transform="scale(0)">
+            <path d="M60 90 C 46 40, 74 40, 60 90 C 70 120, 50 120, 60 90 Z" fill="url(#tg${i})"/>
+          </g>
+          <g class="petal right" transform="scale(0)">
+            <path d="M60 98 C 80 60, 114 64, 96 102 C 106 118, 90 132, 60 128" fill="url(#tg${i})"/>
+          </g>
+        </svg>
+      `;
+    }
+
+    function generateGarden(containerId = 'garden', count = 3){
+      const host = document.getElementById(containerId);
+      if(!host) return;
+      host.innerHTML = '';
+      for(let i=0;i<count;i++){
+        host.insertAdjacentHTML('beforeend', tulipSVG(i));
+      }
+    }
+
+    function animateTulips(){
+      const stems = document.querySelectorAll('.tulip-svg .stem');
+      const petals = document.querySelectorAll('.tulip-svg .petal');
+      stems.forEach((s,i)=>{
+        setTimeout(()=> { s.style.strokeDashoffset = '0'; }, 360 + i*260);
+      });
+      petals.forEach((p,i)=>{
+        setTimeout(()=>{
+          if(p.classList.contains('left')) p.style.transform = 'scale(1) rotate(-6deg)';
+          else if(p.classList.contains('right')) p.style.transform = 'scale(1) rotate(6deg)';
+          else p.style.transform = 'scale(1) rotate(0deg)';
+        }, 760 + i*320);
+      });
     }
 
     function spawnButterflies(){
@@ -467,13 +456,17 @@ function animateTulips(){
       clearInterval(timerInterval);
       showEnvelope();
     });
-    openNow.addEventListener('click',()=>{
-      clearInterval(timerInterval);
-      showEnvelope();
-    });
-    explain.addEventListener('click',()=>{
-      alert('This page counts down to 24 Jan (Pakistan time). When the timer ends, a sealed envelope appears. Click the envelope to open a gentle scroll with the birthday message and a tulip scene.\n\nPreview button opens it for you only (keeps it private).');
-    });
+    if (openNow) {
+      openNow.addEventListener('click',()=>{
+        clearInterval(timerInterval);
+        showEnvelope();
+      });
+    }
+    if (explain) {
+      explain.addEventListener('click',()=>{
+        alert('This page counts down to 24 Jan (Pakistan time). When the timer ends, a sealed envelope appears. Click the envelope to open a gentle scroll with the birthday message and a tulip scene.\n\nPreview button opens it for you only (keeps it private).');
+      });
+    }
 
   /* ---------- AUDIO: robust WebAudio synth loop (Option A improved) ---------- */
 let synthCtx = null;
