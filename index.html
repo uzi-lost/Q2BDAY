@@ -117,10 +117,21 @@
     .scroll-paper .handtext{font-family:'Dancing Script',cursive;font-size:20px;line-height:1.4;color:var(--text)}
 
     /* Tulips garden */
-    .garden{display:flex;gap:18px;align-items:flex-end;margin-top:18px}
-    .tulip{width:84px;height:160px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
-    .stem{width:6px;background:linear-gradient(180deg,#69b06f,#2f7a4b);border-radius:8px;transition:height .9s cubic-bezier(.2,.8,.2,1);}
-    .bloom{width:46px;height:46px;border-radius:50% 50% 45% 45%;background:linear-gradient(180deg,#FF98BE,#FF6F9E);transform-origin:bottom center;transition:transform .9s cubic-bezier(.2,.8,.2,1);box-shadow:0 10px 24px rgba(255,105,160,0.15)}
+   /* ---------- Tulip garden (SVG-based, pro) ---------- */
+.garden{display:flex;gap:22px;align-items:flex-end;margin-top:18px}
+.tulip-svg{width:96px;height:220px;overflow:visible}
+.tulip-svg .stem{
+  stroke:#2f7a4b; stroke-width:6; stroke-linecap:round; stroke-linejoin:round;
+  stroke-dasharray:260; stroke-dashoffset:260; transition:stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1);
+}
+.tulip-svg .petal{
+  transform-origin:60px 110px;
+  transform:scale(0) rotate(0deg);
+  transition:transform .9s cubic-bezier(.2,.8,.2,1);
+  filter:drop-shadow(0 10px 26px rgba(255,90,140,0.14));
+}
+.tulip-svg .petal.left{ transform-origin:40px 112px; }
+.tulip-svg .petal.right{ transform-origin:80px 112px; }
 
     /* butterflies */
     .butter{position:absolute;pointer-events:none;font-size:28px;opacity:0.95;transform-origin:center}
@@ -208,12 +219,17 @@
           <div class="handtext" id="letterText"></div>
         </div>
       </div>
+<div class="garden" id="garden"></div>
+      // generate & animate garden (replace the old DOM injection)
+generateGarden('garden', 3);
+setTimeout(animateTulips, 220);
 
-      <div class="garden" id="garden">
+
+    <!--  <div class="garden" id="garden">
         <div class="tulip" data-index="0"><div class="stem" style="height:0"></div><div class="bloom" style="transform:scale(0)"></div></div>
         <div class="tulip" data-index="1"><div class="stem" style="height:0"></div><div class="bloom" style="transform:scale(0);background:linear-gradient(180deg,#FFD1E1,#FF8BB3)"></div></div>
         <div class="tulip" data-index="2"><div class="stem" style="height:0"></div><div class="bloom" style="transform:scale(0);background:linear-gradient(180deg,#FFDDE6,#FFA6C7)"></div></div>
-      </div>
+      </div> -->
     </div>
   </template>
 
@@ -338,27 +354,90 @@ ALLAH KHAIR KARAY... , Fe Iman Illah :) 🌷                                    
       envelopeEl.focus?.();
     }
 
-    function revealScroll(){
-      clearStage();
-      const tpl = document.getElementById('scrollTpl');
-      const node = tpl.content.cloneNode(true);
-      stage.appendChild(node);
+  function revealScroll(){
+  clearStage();
+
+  const tpl = document.getElementById('scrollTpl');
+  const node = tpl.content.cloneNode(true);
+  stage.appendChild(node);
+
+  // 🌷 generate & animate garden
+  generateGarden('garden', 3);
+  setTimeout(animateTulips, 220);
+
+  // 🔊 start audio (mobile-safe: user gesture)
+  ensureSynthContext();
+  startSynthLoop();
+}
+
 
       // insert letter text nicely (preserve newlines)
       const letterTextEl = document.getElementById('letterText');
       letterTextEl.innerHTML = LETTER_TEXT.replace(/\n/g,'<br><br>');
 
       // animate tulips growth staggered
-      const tulips = Array.from(document.querySelectorAll('.tulip'));
-      tulips.forEach((t,i)=>{
-        const bloom = t.querySelector('.bloom');
-        const stem = t.querySelector('.stem');
-        
-        setTimeout(()=>{
-          stem.style.height = (80 + Math.random()*40) + 'px';
-          bloom.style.transform = 'scale(1)';
-        }, 600 + i*420);
-      });
+     /* ---------- Tulip SVG generator + animation ---------- */
+function tulipSVG(i){
+  const colors = [
+    ['#FF98BE','#FF6F9E'],
+    ['#FFD1E1','#FF8BB3'],
+    ['#FFDDE6','#FFA6C7']
+  ];
+  const c = colors[i % colors.length];
+
+  return `
+    <svg class="tulip-svg" viewBox="0 0 120 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <defs>
+        <linearGradient id="tg${i}" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stop-color="${c[0]}"/>
+          <stop offset="1" stop-color="${c[1]}"/>
+        </linearGradient>
+      </defs>
+
+      <!-- stem -->
+      <path class="stem" d="M60 120 C 58 150, 56 190, 60 220" fill="none"/>
+
+      <!-- leaves -->
+      <path d="M60 150 C 36 146, 26 162, 44 176" fill="#2f7a4b" opacity="0.96"/>
+      <path d="M60 162 C 84 158, 94 174, 76 188" fill="#2f7a4b" opacity="0.96"/>
+
+      <!-- petals: left, center, right -->
+      <g class="petal left" transform="scale(0)">
+        <path d="M60 98 C 40 60, 6 64, 24 102 C 14 118, 30 132, 60 128" fill="url(#tg${i})"/>
+      </g>
+      <g class="petal center" transform="scale(0)">
+        <path d="M60 90 C 46 40, 74 40, 60 90 C 70 120, 50 120, 60 90 Z" fill="url(#tg${i})"/>
+      </g>
+      <g class="petal right" transform="scale(0)">
+        <path d="M60 98 C 80 60, 114 64, 96 102 C 106 118, 90 132, 60 128" fill="url(#tg${i})"/>
+      </g>
+    </svg>
+  `;
+}
+
+function generateGarden(containerId = 'garden', count = 3){
+  const host = document.getElementById(containerId);
+  if(!host) return;
+  host.innerHTML = '';
+  for(let i=0;i<count;i++){
+    host.insertAdjacentHTML('beforeend', tulipSVG(i));
+  }
+}
+
+function animateTulips(){
+  const stems = document.querySelectorAll('.tulip-svg .stem');
+  const petals = document.querySelectorAll('.tulip-svg .petal');
+  stems.forEach((s,i)=>{
+    setTimeout(()=> { s.style.strokeDashoffset = '0'; }, 360 + i*260);
+  });
+  petals.forEach((p,i)=>{
+    setTimeout(()=>{
+      if(p.classList.contains('left')) p.style.transform = 'scale(1) rotate(-6deg)';
+      else if(p.classList.contains('right')) p.style.transform = 'scale(1) rotate(6deg)';
+      else p.style.transform = 'scale(1) rotate(0deg)';
+    }, 760 + i*320);
+  });
+}
 
       // gentle butterflies
       spawnButterflies();
