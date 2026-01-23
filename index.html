@@ -394,39 +394,76 @@ ALLAH KHAIR KARAY... , Fe Iman Illah :) 🌷                                    
       alert('This page counts down to 24 Jan (Pakistan time). When the timer ends, a sealed envelope appears. Click the envelope to open a gentle scroll with the birthday message and a tulip scene.\n\nPreview button opens it for you only (keeps it private).');
     });
 
-    /* ==========================
-       OPTIONAL: soft music control (muted by default)
-       ========================== */
-    let music;
-    (function(){
-      music = new Audio();
-      // tiny looped gentle harp-like url: embedded via data URI (tiny tone) - we will not include long audio to keep single-file small
-      // keep music disabled by default — toggle will load a short base64-encoded audio if desired
-      music.loop = true; music.volume = 0.14; music.muted = true;
-    })();
-    soundToggle.addEventListener('click', ()=>{
-      if(music.muted){
-        // attempt to play a tiny pleasant tone using WebAudio if available (keeps file small)
-        playSoftTone();
-        music.muted = false; soundToggle.textContent = '🔊';
-      } else { music.muted = true; soundToggle.textContent = '🔈'; }
-    });
+   // ---------- OPTION A: Built-in WebAudio soft loop ----------
+let audioCtx = null;
+let masterGain = null;
+let synthLoopHandle = null;
+let synthPlaying = false;
 
-    function playSoftTone(){
-      // use WebAudio to play a tasteful loop of soft notes (short, synth-like)
-      try{
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const gain = ctx.createGain(); gain.gain.value = 0.06; gain.connect(ctx.destination);
-        const osc1 = ctx.createOscillator(); osc1.type='sine'; osc1.frequency.value = 440;
-        const osc2 = ctx.createOscillator(); osc2.type='sine'; osc2.frequency.value = 660;
-        const mix = ctx.createGain(); mix.gain.value = 0.5; osc1.connect(mix); osc2.connect(mix); mix.connect(gain);
-        osc1.start(); osc2.start();
-        // simple gentle melody
-        let t = ctx.currentTime;
-        const notes = [440,0,660,0,554,0,440];
-        notes.forEach((n,i)=>{ if(n>0){ const o = ctx.createOscillator(); o.type='sine'; o.frequency.value = n; const g = ctx.createGain(); g.gain.value = 0.06; o.connect(g); g.connect(ctx.destination); o.start(t + i*0.6); o.stop(t + i*0.6 + 0.55); } });
-      }catch(e){ /* ignore */ }
-    }
+// create/resume context on first user gesture
+function ensureAudioContext(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.06;
+    masterGain.connect(audioCtx.destination);
+  } else if(audioCtx.state === 'suspended'){
+    audioCtx.resume().catch(()=>{});
+  }
+}
+
+// one short musical sequence (non-intrusive)
+function playSynthSequence(){
+  const now = audioCtx.currentTime;
+  const freqs = [440, 0, 660, 0, 554, 0, 440]; // small motif
+  freqs.forEach((f,i)=>{
+    if(f <= 0) return;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sine';
+    o.frequency.value = f;
+    g.gain.value = 0;
+    o.connect(g); g.connect(masterGain);
+    const t = now + i * 0.48;
+    g.gain.setValueAtTime(0, t);
+    g.gain.linearRampToValueAtTime(0.06, t + 0.04);
+    g.gain.linearRampToValueAtTime(0, t + 0.46);
+    o.start(t); o.stop(t + 0.5);
+  });
+}
+
+// Start/stop loop
+function startSynthLoop(){
+  if(synthPlaying) return;
+  ensureAudioContext();
+  playSynthSequence();
+  synthLoopHandle = setInterval(playSynthSequence, 3200); // repeat the motif
+  synthPlaying = true;
+  if(typeof setAudioIcon === 'function') setAudioIcon(true);
+}
+function stopSynthLoop(){
+  if(!synthPlaying) return;
+  clearInterval(synthLoopHandle);
+  synthLoopHandle = null;
+  synthPlaying = false;
+  if(typeof setAudioIcon === 'function') setAudioIcon(false);
+}
+
+// Toggle handler for your sound button (example using soundToggle or audioBtn)
+soundToggle.addEventListener('click', ()=>{
+  // on mobile, ensure we got a gesture to resume the audio context
+  ensureAudioContext();
+  if(synthPlaying) stopSynthLoop();
+  else startSynthLoop();
+});
+
+// resume audio context on any first pointerdown (helps mobile)
+function resumeOnGesture(){
+  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+  window.removeEventListener('pointerdown', resumeOnGesture);
+}
+window.addEventListener('pointerdown', resumeOnGesture, { once: true });
+
 
     /* ==========================
        Accessibility: keyboard open
