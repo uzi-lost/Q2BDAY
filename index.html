@@ -398,50 +398,49 @@ ALLAH KHAIR KARAY... , Fe Iman Illah :) 🌷                                    
       alert('This page counts down to 24 Jan (Pakistan time). When the timer ends, a sealed envelope appears. Click the envelope to open a gentle scroll with the birthday message and a tulip scene.\n\nPreview button opens it for you only (keeps it private).');
     });
 
-   // ---------- OPTION A: Built-in WebAudio soft loop ----------
-let audioCtx = null;
-let masterGain = null;
+  /* ---------- AUDIO: robust WebAudio synth loop (Option A improved) ---------- */
+let synthCtx = null;
+let synthGain = null;
 let synthLoopHandle = null;
 let synthPlaying = false;
 
-// create/resume context on first user gesture
-function ensureAudioContext(){
-  if(!audioCtx){
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    masterGain = audioCtx.createGain();
-    masterGain.gain.value = 0.06;
-    masterGain.connect(audioCtx.destination);
-  } else if(audioCtx.state === 'suspended'){
-    audioCtx.resume().catch(()=>{});
+function ensureSynthContext(){
+  if(!synthCtx){
+    synthCtx = new (window.AudioContext || window.webkitAudioContext)();
+    synthGain = synthCtx.createGain();
+    synthGain.gain.value = 0.06;
+    synthGain.connect(synthCtx.destination);
+  }
+  if(synthCtx.state === 'suspended'){
+    synthCtx.resume().catch(()=>{});
   }
 }
 
-// one short musical sequence (non-intrusive)
-function playSynthSequence(){
-  const now = audioCtx.currentTime;
-  const freqs = [440, 0, 660, 0, 554, 0, 440]; // small motif
+function playSynthMotif(){
+  const now = synthCtx.currentTime;
+  const freqs = [440, 0, 660, 0, 554, 0, 440]; // tiny motif
   freqs.forEach((f,i)=>{
     if(f <= 0) return;
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
+    const o = synthCtx.createOscillator();
+    const g = synthCtx.createGain();
     o.type = 'sine';
     o.frequency.value = f;
-    g.gain.value = 0;
-    o.connect(g); g.connect(masterGain);
+    o.connect(g);
+    g.connect(synthGain);
     const t = now + i * 0.48;
     g.gain.setValueAtTime(0, t);
     g.gain.linearRampToValueAtTime(0.06, t + 0.04);
     g.gain.linearRampToValueAtTime(0, t + 0.46);
-    o.start(t); o.stop(t + 0.5);
+    o.start(t);
+    o.stop(t + 0.5);
   });
 }
 
-// Start/stop loop
 function startSynthLoop(){
   if(synthPlaying) return;
-  ensureAudioContext();
-  playSynthSequence();
-  synthLoopHandle = setInterval(playSynthSequence, 3200); // repeat the motif
+  ensureSynthContext();
+  playSynthMotif();
+  synthLoopHandle = setInterval(playSynthMotif, 3200);
   synthPlaying = true;
   if(typeof setAudioIcon === 'function') setAudioIcon(true);
 }
@@ -453,20 +452,20 @@ function stopSynthLoop(){
   if(typeof setAudioIcon === 'function') setAudioIcon(false);
 }
 
-// Toggle handler for your sound button (example using soundToggle or audioBtn)
+/* Toggle handler for your sound button */
 soundToggle.addEventListener('click', ()=>{
-  // on mobile, ensure we got a gesture to resume the audio context
-  ensureAudioContext();
+  // ensure audio context exists / resume on user click
+  ensureSynthContext();
   if(synthPlaying) stopSynthLoop();
   else startSynthLoop();
 });
 
-// resume audio context on any first pointerdown (helps mobile)
-function resumeOnGesture(){
-  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
-  window.removeEventListener('pointerdown', resumeOnGesture);
+/* Mobile helper: resume audio context on first pointerdown (user gesture) */
+function _resumeOnFirstGesture(){
+  if(synthCtx && synthCtx.state === 'suspended') synthCtx.resume().catch(()=>{});
+  window.removeEventListener('pointerdown', _resumeOnFirstGesture);
 }
-window.addEventListener('pointerdown', resumeOnGesture, { once: true });
+window.addEventListener('pointerdown', _resumeOnFirstGesture, { once: true });
 
 
     /* ==========================
